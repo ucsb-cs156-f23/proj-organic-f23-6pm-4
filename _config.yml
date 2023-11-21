@@ -23,4 +23,4 @@ repo_name: "TBD"
 repo: ucsb-cs156-f23/proj-organic-f23-6pm-4
 owner: ucsb-cs156-f23
 repo_name: proj-organic-f23-6pm-4
-pull_requests: [{"author":{"id":"U_kgDOBclckQ","is_bot":false,"login":"allychu","name":""},"headRefName":"allychu-coursesFixture","number":10,"title":"F1: fixtures for Courses","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/10"}]
+pull_requests: [{"author":{"id":"U_kgDOBXmMcA","is_bot":false,"login":"darylou","name":"Daryl Ou"},"headRefName":"darylou-add-instructor-column","number":12,"title":"Add Instructor Column","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/12"},{"author":{"id":"U_kgDOBclckQ","is_bot":false,"login":"allychu","name":""},"headRefName":"allychu-coursesFixture","number":10,"title":"F1: fixtures for Courses","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/10"}]

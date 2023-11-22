@@ -23,4 +23,4 @@ repo_name: "TBD"
 repo: ucsb-cs156-f23/proj-organic-f23-6pm-4
 owner: ucsb-cs156-f23
 repo_name: proj-organic-f23-6pm-4
-pull_requests: [{"author":{"id":"U_kgDOB8FKHg","is_bot":false,"login":"shuyiwan","name":"Shuyi Wan"},"headRefName":"Shuyi-POST-toggleAdmin","number":14,"title":"Added POST toggle Admin in UsersController and UsersControllerTests","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/14"}]
+pull_requests: [{"author":{"id":"MDQ6VXNlcjgwMDY1NjAx","is_bot":false,"login":"sumitgupta314","name":"Sumit Gupta"},"headRefName":"sg-GET-course-by-id","number":15,"title":"Added get by id endpoint and test cases","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/15"},{"author":{"id":"U_kgDOB8FKHg","is_bot":false,"login":"shuyiwan","name":"Shuyi Wan"},"headRefName":"Shuyi-POST-toggleAdmin","number":14,"title":"Added POST toggle Admin in UsersController and UsersControllerTests","url":"https://github.com/ucsb-cs156-f23/proj-organic-f23-6pm-4/pull/14"}]

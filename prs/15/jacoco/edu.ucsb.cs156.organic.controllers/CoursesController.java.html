@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import edu.ucsb.cs156.organic.errors.EntityNotFoundException;
-
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 
@@ -62,14 +62,18 @@ import java.time.LocalDateTime;
     public Course getById(
             @Parameter(name=&quot;id&quot;) @RequestParam Long id) {
 <span class="fc" id="L64">        User u = getCurrentUser().getUser();</span>
-<span class="pc bpc" id="L65" title="3 of 4 branches missed.">        if(u.isAdmin() || u.isInstructor()){</span>
-<span class="fc" id="L66">                Course course = courseRepository.findById(id)</span>
-<span class="fc" id="L67">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, id));</span>
 
-<span class="fc" id="L69">                return course;</span>
+<span class="fc" id="L66">        Course course = courseRepository.findById(id)</span>
+<span class="fc" id="L67">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, id));</span>
+        
+<span class="pc bpc" id="L69" title="3 of 4 branches missed.">        if(!u.isAdmin() &amp;&amp; !u.isInstructor()){</span>
+<span class="nc" id="L70">                courseStaffRepository.findByCourseIdAndGithubId(id, u.getGithubId())</span>
+<span class="nc" id="L71">                        .orElseThrow(() -&gt; new AccessDeniedException(</span>
+<span class="nc" id="L72">                String.format(&quot;User %s is not authorized to get course %d&quot;, u.getGithubLogin(), id)));</span>
         }
-<span class="nc" id="L71">        return null;</span>
-    }
+
+<span class="fc" id="L75">        return course;</span>
+}
 
     @Operation(summary = &quot;Create a new course&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
@@ -83,27 +87,27 @@ import java.time.LocalDateTime;
             @Parameter(name = &quot;githubOrg&quot;, description = &quot;for example ucsb-cs156-f23&quot; ) @RequestParam String githubOrg)
             throws JsonProcessingException {
 
-<span class="fc" id="L86">        Course course = Course.builder()</span>
-<span class="fc" id="L87">                .name(name)</span>
-<span class="fc" id="L88">                .school(school)</span>
-<span class="fc" id="L89">                .term(term)</span>
-<span class="fc" id="L90">                .start(start)</span>
-<span class="fc" id="L91">                .end(end)</span>
-<span class="fc" id="L92">                .githubOrg(githubOrg)</span>
-<span class="fc" id="L93">                .build();</span>
+<span class="fc" id="L90">        Course course = Course.builder()</span>
+<span class="fc" id="L91">                .name(name)</span>
+<span class="fc" id="L92">                .school(school)</span>
+<span class="fc" id="L93">                .term(term)</span>
+<span class="fc" id="L94">                .start(start)</span>
+<span class="fc" id="L95">                .end(end)</span>
+<span class="fc" id="L96">                .githubOrg(githubOrg)</span>
+<span class="fc" id="L97">                .build();</span>
 
-<span class="fc" id="L95">        Course savedCourse = courseRepository.save(course);</span>
-<span class="fc" id="L96">        User u = getCurrentUser().getUser();</span>
+<span class="fc" id="L99">        Course savedCourse = courseRepository.save(course);</span>
+<span class="fc" id="L100">        User u = getCurrentUser().getUser();</span>
 
-<span class="fc" id="L98">        Staff courseStaff = Staff.builder()</span>
-<span class="fc" id="L99">                .courseId(savedCourse.getId())</span>
-<span class="fc" id="L100">                .githubId(u.getGithubId())</span>
-<span class="fc" id="L101">                .build();</span>
+<span class="fc" id="L102">        Staff courseStaff = Staff.builder()</span>
+<span class="fc" id="L103">                .courseId(savedCourse.getId())</span>
+<span class="fc" id="L104">                .githubId(u.getGithubId())</span>
+<span class="fc" id="L105">                .build();</span>
 
-<span class="fc" id="L103">        log.info(&quot;courseStaff={}&quot;, courseStaff);</span>
-<span class="fc" id="L104">        courseStaffRepository.save(courseStaff);</span>
+<span class="fc" id="L107">        log.info(&quot;courseStaff={}&quot;, courseStaff);</span>
+<span class="fc" id="L108">        courseStaffRepository.save(courseStaff);</span>
 
-<span class="fc" id="L106">        return savedCourse;</span>
+<span class="fc" id="L110">        return savedCourse;</span>
     }
 
     @Operation(summary = &quot;Add a staff member to a course&quot;)
@@ -114,22 +118,22 @@ import java.time.LocalDateTime;
             @Parameter(name = &quot;githubLogin&quot;) @RequestParam String githubLogin)
             throws JsonProcessingException {
 
-<span class="fc" id="L117">        Course course = courseRepository.findById(courseId)</span>
-<span class="fc" id="L118">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, courseId.toString()));</span>
+<span class="fc" id="L121">        Course course = courseRepository.findById(courseId)</span>
+<span class="fc" id="L122">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, courseId.toString()));</span>
 
-<span class="fc" id="L120">        User user = userRepository.findByGithubLogin(githubLogin)</span>
-<span class="fc" id="L121">                .orElseThrow(() -&gt; new EntityNotFoundException(User.class, githubLogin.toString()));</span>
+<span class="fc" id="L124">        User user = userRepository.findByGithubLogin(githubLogin)</span>
+<span class="fc" id="L125">                .orElseThrow(() -&gt; new EntityNotFoundException(User.class, githubLogin.toString()));</span>
 
-<span class="fc" id="L123">        Staff courseStaff = Staff.builder()</span>
-<span class="fc" id="L124">                .courseId(course.getId())</span>
-<span class="fc" id="L125">                .githubId(user.getGithubId())</span>
-<span class="fc" id="L126">                .user(user)</span>
-<span class="fc" id="L127">                .build();</span>
+<span class="fc" id="L127">        Staff courseStaff = Staff.builder()</span>
+<span class="fc" id="L128">                .courseId(course.getId())</span>
+<span class="fc" id="L129">                .githubId(user.getGithubId())</span>
+<span class="fc" id="L130">                .user(user)</span>
+<span class="fc" id="L131">                .build();</span>
 
-<span class="fc" id="L129">        courseStaff = courseStaffRepository.save(courseStaff);</span>
-<span class="fc" id="L130">        log.info(&quot;courseStaff={}&quot;, courseStaff);</span>
+<span class="fc" id="L133">        courseStaff = courseStaffRepository.save(courseStaff);</span>
+<span class="fc" id="L134">        log.info(&quot;courseStaff={}&quot;, courseStaff);</span>
 
-<span class="fc" id="L132">        return courseStaff;</span>
+<span class="fc" id="L136">        return courseStaff;</span>
     }
 
     @Operation(summary = &quot;Get Staff for course&quot;)
@@ -140,11 +144,11 @@ import java.time.LocalDateTime;
     )
             throws JsonProcessingException {
 
-<span class="fc" id="L143">        Course course = courseRepository.findById(courseId)</span>
-<span class="fc" id="L144">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, courseId.toString()));</span>
+<span class="fc" id="L147">        Course course = courseRepository.findById(courseId)</span>
+<span class="fc" id="L148">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, courseId.toString()));</span>
 
-<span class="fc" id="L146">        Iterable&lt;Staff&gt; courseStaff = courseStaffRepository.findByCourseId(course.getId());</span>
-<span class="fc" id="L147">        return courseStaff;</span>
+<span class="fc" id="L150">        Iterable&lt;Staff&gt; courseStaff = courseStaffRepository.findByCourseId(course.getId());</span>
+<span class="fc" id="L151">        return courseStaff;</span>
     }
 
 }

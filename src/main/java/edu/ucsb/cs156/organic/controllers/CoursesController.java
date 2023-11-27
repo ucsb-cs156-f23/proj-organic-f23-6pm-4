@@ -132,4 +132,37 @@ public class CoursesController extends ApiController {
         return courseStaff;
     }
 
+    @Operation(summary = "Update information for a course")
+    // allow for roles of ADMIN or INSTRUCTOR but only if the user is a staff member
+    // for the course
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_INSTRUCTOR') and hasPermission(#id, 'Course', 'update'))")
+    @GetMapping("/update")
+    public Course updateCourse(
+            @Parameter(name = "id") @RequestParam Long id,
+            @Parameter(name = "name", description = "course name, e.g. CMPSC 156") @RequestParam String name,
+            @Parameter(name = "school", description = "school abbreviation e.g. UCSB") @RequestParam String school,
+            @Parameter(name = "term", description = "quarter or semester, e.g. F23") @RequestParam String term,
+            @Parameter(name = "start", description = "in iso format, i.e. YYYY-mm-ddTHH:MM:SS; e.g. 2023-10-01T00:00:00 see https://en.wikipedia.org/wiki/ISO_8601") @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @Parameter(name = "end", description = "in iso format, i.e. YYYY-mm-ddTHH:MM:SS; e.g. 2023-12-31T11:59:59 see https://en.wikipedia.org/wiki/ISO_8601") @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+            @Parameter(name = "githubOrg", description = "for example ucsb-cs156-f23") @RequestParam String githubOrg)
+            throws JsonProcessingException {
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Course.class, id.toString()));
+
+        // Check if the current user is a staff member for this course. If not, throw
+        // UnauthorizedException
+        course.setName(name);
+        course.setSchool(school);
+        course.setTerm(term);
+        course.setStart(start);
+        course.setEnd(end);
+        course.setGithubOrg(githubOrg);
+
+        course = courseRepository.save(course);
+        log.info("course={}", course);
+
+        return course;
+    }
+
 }

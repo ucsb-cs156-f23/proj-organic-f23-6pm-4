@@ -66,9 +66,9 @@ import java.time.LocalDateTime;
 <span class="fc" id="L66">        Course course = courseRepository.findById(id)</span>
 <span class="fc" id="L67">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, id));</span>
         
-<span class="pc bpc" id="L69" title="3 of 4 branches missed.">        if(!u.isAdmin() &amp;&amp; !u.isInstructor()){</span>
-<span class="nc" id="L70">                courseStaffRepository.findByCourseIdAndGithubId(id, u.getGithubId())</span>
-<span class="nc" id="L71">                        .orElseThrow(() -&gt; new AccessDeniedException(</span>
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">        if(!u.isAdmin() &amp;&amp; !u.isInstructor()){</span>
+<span class="fc" id="L70">                courseStaffRepository.findByCourseIdAndGithubId(id, u.getGithubId())</span>
+<span class="pc" id="L71">                        .orElseThrow(() -&gt; new AccessDeniedException(</span>
 <span class="nc" id="L72">                String.format(&quot;User %s is not authorized to get course %d&quot;, u.getGithubLogin(), id)));</span>
         }
 

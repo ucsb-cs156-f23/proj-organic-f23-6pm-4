@@ -52,7 +52,7 @@ import javax.validation.Valid;
     @Operation(summary= &quot;Toggle a user's instructor status&quot;)
     @PreAuthorize(&quot;hasRole('ROLE_ADMIN')&quot;)
     @PostMapping(&quot;/toggleInstructor&quot;)
-    public User postUsersToggleInstructor(
+    public Object postUsersToggleInstructor(
             @Parameter(name=&quot;githubId&quot;) @RequestParam Integer githubId)
             {
 
@@ -61,8 +61,8 @@ import javax.validation.Valid;
 
 <span class="fc bfc" id="L62" title="All 2 branches covered.">        user.setInstructor(!user.isInstructor());</span>
 
-<span class="fc" id="L64">        User savedUser = userRepository.save(user);</span>
-<span class="fc" id="L65">        return savedUser;</span>
+<span class="fc" id="L64">        userRepository.save(user);</span>
+<span class="fc" id="L65">        return genericMessage(&quot;User with githubId %s has toggled instructor status to %s&quot;.formatted(githubId, user.isInstructor()));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

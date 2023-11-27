@@ -71,5 +71,9 @@ public abstract class ApiController {
     });
 <span class="fc" id="L72">    return mapper;</span>
   }
+
+  protected Object genericMessage(String message) {
+<span class="fc" id="L76">    return Map.of(&quot;message&quot;, message);</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

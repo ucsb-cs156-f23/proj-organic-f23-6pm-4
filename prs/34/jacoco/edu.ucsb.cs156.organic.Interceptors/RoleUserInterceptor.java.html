@@ -44,7 +44,7 @@ import edu.ucsb.cs156.organic.entities.User;
 <span class="fc" id="L44">            OAuth2User oAuthUser = ((OAuth2AuthenticationToken) authentication).getPrincipal();</span>
 <span class="fc" id="L45">            String githubLogin = oAuthUser.getAttribute(&quot;githubLogin&quot;);</span>
 <span class="fc" id="L46">            Optional&lt;User&gt; optionalUser = userRepository.findByGithubLogin(githubLogin);</span>
-<span class="pc bpc" id="L47" title="1 of 2 branches missed.">            if (optionalUser.isPresent()){</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (optionalUser.isPresent()){</span>
 <span class="fc" id="L48">                User user = optionalUser.get();</span>
 
 <span class="fc" id="L50">                Set&lt;GrantedAuthority&gt; newAuthorities = new HashSet&lt;&gt;();</span>

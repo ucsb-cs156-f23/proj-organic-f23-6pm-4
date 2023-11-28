@@ -54,7 +54,6 @@ import edu.ucsb.cs156.organic.repositories.UserRepository;
 import edu.ucsb.cs156.organic.repositories.jobs.JobsRepository;
 import edu.ucsb.cs156.organic.services.jobs.JobService;
 import edu.ucsb.cs156.organic.services.CurrentUserService;
-import edu.ucsb.cs156.organic.services.UserPermissionEvaluator;
 import liquibase.pro.packaged.W;
 import lombok.With;
 import lombok.extern.slf4j.Slf4j;
@@ -355,32 +354,20 @@ public class CoursesControllerTests extends ControllerTestCase {
     public void an_admin_user_can_update_a_course() throws Exception {
         // arrange
 
-        Course courseBefore = Course.builder()
-                .id(1L)
-                .name("CS16")
-                .school("UCSB")
-                .term("F23")
-                .start(LocalDateTime.parse("2023-09-01T00:00:00"))
-                .end(LocalDateTime.parse("2023-12-31T00:00:00"))
-                .githubOrg("ucsb-cs16-f23")
-                .build();
+        Course courseBefore = course1;
 
-        Course courseAfter = Course.builder()
-                .id(1L)
-                .name("CS16")
-                .school("UCSB")
-                .term("F23")
-                .start(LocalDateTime.parse("2023-09-01T00:00:00"))
-                .end(LocalDateTime.parse("2023-12-31T00:00:00"))
-                .githubOrg("ucsb-cs16-f23")
-                .build();
+        Course courseAfter = course2;
+        courseAfter.setSchool("UCSD");
 
         when(courseRepository.findById(eq(courseBefore.getId()))).thenReturn(Optional.of(courseBefore));
         when(courseRepository.save(eq(courseAfter))).thenReturn(courseAfter);
 
-        // act
+        String urlTemplate = String.format(
+                "/api/courses/update?id=%d&name=%s&school=%s&term=%s&start=%s&end=%s&githubOrg=%s",
+                courseAfter.getId(), courseAfter.getName(), courseAfter.getSchool(), courseAfter.getTerm(),
+                courseAfter.getStart().toString(), courseAfter.getEnd().toString(), courseAfter.getGithubOrg());
         MvcResult response = mockMvc.perform(
-                put("/api/courses/update?id=1&name=CS16&school=UCSB&term=F23&start=2023-09-01T00:00:00&end=2023-12-31T00:00:00&githubOrg=ucsb-cs16-f23")
+                put(urlTemplate)
                         .with(csrf()))
                 .andExpect(status().isOk()).andReturn();
 
@@ -400,25 +387,10 @@ public class CoursesControllerTests extends ControllerTestCase {
         // get current user, make sure that when courseStaffRepository.findByCourseId is
         // called, it returns the current user
 
-        Course courseBefore = Course.builder()
-                .id(1L)
-                .name("CS16")
-                .school("UCSB")
-                .term("F23")
-                .start(LocalDateTime.parse("2023-09-01T00:00:00"))
-                .end(LocalDateTime.parse("2023-12-31T00:00:00"))
-                .githubOrg("ucsb-cs16-f23")
-                .build();
+        Course courseBefore = course1;
 
-        Course courseAfter = Course.builder()
-                .id(1L)
-                .name("CS32")
-                .school("UCSB")
-                .term("F23")
-                .start(LocalDateTime.parse("2023-09-01T00:00:00"))
-                .end(LocalDateTime.parse("2023-12-31T00:00:00"))
-                .githubOrg("ucsb-cs32-f23")
-                .build();
+        Course courseAfter = course2;
+        courseAfter.setSchool("UCSD");
 
         when(courseRepository.findById(eq(courseBefore.getId()))).thenReturn(Optional.of(courseBefore));
         when(courseRepository.save(eq(courseAfter))).thenReturn(courseAfter);
@@ -430,8 +402,13 @@ public class CoursesControllerTests extends ControllerTestCase {
         when(courseStaffRepository.findByCourseId(courseBefore.getId()))
                 .thenReturn(Arrays.asList(Staff.builder().githubId(githubId).build()));
         // act
+        // get urlTemplate from courseAfter using string interpolation
+        String urlTemplate = String.format(
+                "/api/courses/update?id=%d&name=%s&school=%s&term=%s&start=%s&end=%s&githubOrg=%s",
+                courseAfter.getId(), courseAfter.getName(), courseAfter.getSchool(), courseAfter.getTerm(),
+                courseAfter.getStart().toString(), courseAfter.getEnd().toString(), courseAfter.getGithubOrg());
         MvcResult response = mockMvc.perform(
-                put("/api/courses/update?id=1&name=CS32&school=UCSB&term=F23&start=2023-09-01T00:00:00&end=2023-12-31T00:00:00&githubOrg=ucsb-cs32-f23")
+                put(urlTemplate)
                         .with(csrf()))
                 .andExpect(status().isOk()).andReturn();
 
@@ -471,7 +448,13 @@ public class CoursesControllerTests extends ControllerTestCase {
         when(courseRepository.findById(eq(courseBefore.getId()))).thenReturn(Optional.of(courseBefore));
         when(courseRepository.save(eq(courseAfter))).thenReturn(courseAfter);
         // mock user is not staff
-        when(courseStaffRepository.findByCourseId(courseBefore.getId())).thenReturn(new ArrayList<Staff>());
+
+        User user = userService.getCurrentUser().getUser();
+        Integer githubId = user.getGithubId();
+        ArrayList<Staff> notStaff = new ArrayList<>();
+        notStaff.add(Staff.builder().githubId(githubId - 1).build());
+        when(courseStaffRepository.findByCourseId(courseBefore.getId()))
+                .thenReturn(notStaff);
         // act
         MvcResult response = mockMvc.perform(
                 put("/api/courses/update?id=1&name=CS16&school=UCSB&term=F23&start=2023-09-01T00:00:00&end=2023-12-31T00:00:00&githubOrg=ucsb-cs16-f23")
@@ -646,7 +629,13 @@ public class CoursesControllerTests extends ControllerTestCase {
 
         when(courseRepository.findById(eq(courseBefore.getId()))).thenReturn(Optional.of(courseBefore));
         // mock user is not staff
-        when(courseStaffRepository.findByCourseId(courseBefore.getId())).thenReturn(new ArrayList<Staff>());
+
+        User user = userService.getCurrentUser().getUser();
+        Integer githubId = user.getGithubId();
+        ArrayList<Staff> notStaff = new ArrayList<>();
+        notStaff.add(Staff.builder().githubId(githubId - 1).build());
+        when(courseStaffRepository.findByCourseId(courseBefore.getId()))
+                .thenReturn(notStaff);
         // act
         MvcResult response = mockMvc.perform(
                 delete("/api/courses/delete?id=1")

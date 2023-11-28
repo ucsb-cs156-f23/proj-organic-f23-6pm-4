@@ -173,7 +173,7 @@ public class CoursesController extends ApiController {
         course.setTerm(term);
         course.setStart(start);
         course.setEnd(end);
-        course.setGithubOrg(githubOrg);
+        course.setGithubOrg(githubOrg); 
 
         course = courseRepository.save(course);
         log.info("course={}", course);

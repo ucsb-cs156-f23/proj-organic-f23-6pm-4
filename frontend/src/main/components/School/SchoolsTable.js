@@ -48,7 +48,7 @@ export default function SchoolsTable({
         },
         {
             Header: 'Term Error',
-            id: 'termError',
+            accessor: 'termError',
         }
     ];
 

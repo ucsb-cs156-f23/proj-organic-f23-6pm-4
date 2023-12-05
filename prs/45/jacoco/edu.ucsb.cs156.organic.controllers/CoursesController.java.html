@@ -188,27 +188,51 @@ import java.util.Optional;
 <span class="fc" id="L188">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, id.toString()));</span>
 
         // Check if the current user is a staff member for this course or an admin. If
-        // not, throw
-        // AccessDeniedException
+        // not, throw AccessDeniedException
 
-<span class="fc" id="L194">        User u = getCurrentUser().getUser();</span>
-<span class="fc bfc" id="L195" title="All 2 branches covered.">        if (!u.isAdmin()) {</span>
-<span class="fc" id="L196">            courseStaffRepository.findByCourseIdAndGithubId(course.getId(), u.getGithubId())</span>
-<span class="fc" id="L197">                    .orElseThrow(() -&gt; new AccessDeniedException(</span>
+<span class="fc" id="L193">        User u = getCurrentUser().getUser();</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">        if (!u.isAdmin()) {</span>
+<span class="fc" id="L195">            courseStaffRepository.findByCourseIdAndGithubId(course.getId(), u.getGithubId())</span>
+<span class="fc" id="L196">                    .orElseThrow(() -&gt; new AccessDeniedException(</span>
                             &quot;User is not a staff member for this course&quot;));
         }
 
-<span class="fc" id="L201">        course.setName(name);</span>
-<span class="fc" id="L202">        course.setSchool(school);</span>
-<span class="fc" id="L203">        course.setTerm(term);</span>
-<span class="fc" id="L204">        course.setStart(start);</span>
-<span class="fc" id="L205">        course.setEnd(end);</span>
-<span class="fc" id="L206">        course.setGithubOrg(githubOrg);</span>
+<span class="fc" id="L200">        course.setName(name);</span>
+<span class="fc" id="L201">        course.setSchool(school);</span>
+<span class="fc" id="L202">        course.setTerm(term);</span>
+<span class="fc" id="L203">        course.setStart(start);</span>
+<span class="fc" id="L204">        course.setEnd(end);</span>
+<span class="fc" id="L205">        course.setGithubOrg(githubOrg);</span>
 
-<span class="fc" id="L208">        course = courseRepository.save(course);</span>
-<span class="fc" id="L209">        log.info(&quot;course={}&quot;, course);</span>
+<span class="fc" id="L207">        course = courseRepository.save(course);</span>
+<span class="fc" id="L208">        log.info(&quot;course={}&quot;, course);</span>
 
-<span class="fc" id="L211">        return course;</span>
+<span class="fc" id="L210">        return course;</span>
+    }
+
+    // delete a course if the user is an admin or instructor for the course
+    @Operation(summary = &quot;Delete a course&quot;)
+    @PreAuthorize(&quot;hasAnyRole('ROLE_ADMIN', 'ROLE_INSTRUCTOR')&quot;)
+    @DeleteMapping(&quot;/delete&quot;)
+    public Course deleteCourse(
+            @Parameter(name = &quot;id&quot;) @RequestParam Long id)
+            throws JsonProcessingException {
+
+<span class="fc" id="L221">        Course course = courseRepository.findById(id)</span>
+<span class="fc" id="L222">                .orElseThrow(() -&gt; new EntityNotFoundException(Course.class, id.toString()));</span>
+
+        // Check if the current user is a staff member for this course or an admin. If
+        // not, throw AccessDeniedException
+
+<span class="fc" id="L227">        User u = getCurrentUser().getUser();</span>
+<span class="fc bfc" id="L228" title="All 2 branches covered.">        if (!u.isAdmin()) {</span>
+<span class="fc" id="L229">            courseStaffRepository.findByCourseIdAndGithubId(course.getId(), u.getGithubId())</span>
+<span class="fc" id="L230">                    .orElseThrow(() -&gt; new AccessDeniedException(</span>
+                            &quot;User is not a staff member for this course&quot;));
+        }
+
+<span class="fc" id="L234">        courseRepository.delete(course);</span>
+<span class="fc" id="L235">        return course;</span>
     }
 
 }
